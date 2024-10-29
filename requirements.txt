@@ -1,0 +1,10 @@
+requests
+pandas
+numpy
+kaggle
+transformers
+pyspellchecker
+symspellpy
+torch
+scikit-learn
+textblob
