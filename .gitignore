@@ -3,3 +3,4 @@
 .idea/.name
 .idea/SpellCheckerEvaluation.iml
 src/__pycache__/data_preparation.cpython-312.pyc
+/data/pythonModels
