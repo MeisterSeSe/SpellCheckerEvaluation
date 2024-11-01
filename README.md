@@ -75,8 +75,8 @@ python src/data_perparation.py #Preprocess data
 python src/spell_checker_setup.py  # Run evaluation only
 python src/visualizations.py  # Generate visualizations
 ```
-Note: To use spello, you need a pretrained model (or train own yourself xD) and place it in [pythonModels](/data/pythonModels).
-I used this [model](https://haptik-website-images.haptik.ai/spello_models/en.pkl.zip), unzip it and place it in [pythonModels](/data/pythonModels).
+Note: To use spello, you need a pretrained model (or train own yourself xD) and place it in `data/pythonModels`.
+I used this [model](https://haptik-website-images.haptik.ai/spello_models/en.pkl.zip), unzip it and place it in `data/pythonModels`.
 ## Results Summary
 
 ![Evalution_results](/results/graphs/spellchecker_analysis.png)
