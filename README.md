@@ -44,7 +44,7 @@ The evaluation uses Peter Norvig's spelling correction dataset, preprocessed int
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/MeisterSeSe/spellchecker-evaluation.git
+git clone https://github.com/MeisterSeSe/SpellCheckerEvaluation.git
 cd spellchecker-evaluation
 ```
 
