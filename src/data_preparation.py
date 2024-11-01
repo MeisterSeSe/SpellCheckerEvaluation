@@ -1,11 +1,19 @@
 import os
-import kagglehub
 import kaggle
 import pandas as pd
 import numpy as np
 from typing import List, Tuple
 
+"""
+Select ur data files here. Options:
 
+"data/raw/aspell.txt", "data/raw/birkbeck.txt", "data/raw/spell-testset1.txt", "data/raw/spell-testset2.txt", "data/raw/wikipedia.txt"
+
+"""
+SRC_PATH = ["data/raw/wikipedia.txt"]
+
+
+#This method downloads the dataset from kaggle directly, however, u will need an api key
 def download_kaggle_dataset(dataset: str, path: str):
     kaggle.api.dataset_download_files(dataset, path=path, unzip=True)
 
@@ -24,15 +32,14 @@ def process_txt_file(filepath: str) -> List[Tuple[str, str]]:
     return errors
 
 
-def process_all_files(directory: str) -> List[Tuple[str, str]]:
+def process_all_files(filelist: List[str]) -> List[Tuple[str, str]]:
     """Processes all .txt files in the directory and combines the errors."""
     all_errors = []
-    for filename in os.listdir(directory):
-        if filename.endswith('.txt') and "wikipedia" in filename:
-            filepath = os.path.join(directory, filename)
+    for filepath in filelist:
+        if filepath.endswith('.txt'):
             errors = process_txt_file(filepath)
             all_errors.extend(errors)
-            print(f"Processed {filename}: {len(errors)} errors")
+            print(f"Processed {filepath}: {len(errors)} errors")
     return all_errors
 
 
@@ -72,20 +79,22 @@ def generate_synthetic_errors(words: List[str], n: int) -> List[Tuple[str, str]]
     return errors
 
 
-def main():
+def main(src_path=None):
     # Create directories
+    if src_path is None:
+        src_path = SRC_PATH
     os.makedirs('data/raw', exist_ok=True)
     os.makedirs('data/processed', exist_ok=True)
 
     # Process all spelling error files in the raw directory
-    spelling_errors = process_all_files('data/raw')
+    spelling_errors = process_all_files(src_path)
 
     # Generate synthetic errors
-    words = [word for _, word in spelling_errors]
-    synthetic_errors = generate_synthetic_errors(words, 1000)
+    #words = [word for _, word in spelling_errors]
+    #synthetic_errors = generate_synthetic_errors(words, 1000)
 
     # Combine all errors
-    all_errors = spelling_errors + synthetic_errors
+    all_errors = spelling_errors
 
     # Save processed data
     df = pd.DataFrame(all_errors, columns=['correct', 'error'])

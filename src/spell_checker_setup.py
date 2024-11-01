@@ -1,23 +1,25 @@
 import os
 import random
+import warnings
+from contextlib import contextmanager
 
 import pandas as pd
 import time
 from textblob import TextBlob
 from spellchecker import SpellChecker
 from symspellpy import SymSpell, Verbosity
-import pkg_resources
 from autocorrect import Speller
 from spello.model import SpellCorrectionModel
-import Levenshtein
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 
-
+@contextmanager
+def suppress_spello_warnings():
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore', message='This model was saved on spell<1.3.0.*')
+        yield
 class SpellCheckerEvaluator:
-    def __init__(self, data_path, batch_size=1000, correct_word_sample_rate=0.1):
+    def __init__(self, data_path, correct_word_sample_rate=0.1):
         self.data = pd.read_csv(data_path)
-        self.batch_size = batch_size
         self.correct_word_sample_rate = correct_word_sample_rate  # Percentage of correct words to check
         self.initialize_spellcheckers()
         self.results = {
@@ -56,8 +58,9 @@ class SpellCheckerEvaluator:
 
         # Spello
         try:
-            self.spello = SpellCorrectionModel(language='en')
-            self.spello.load('data/pythonModels/en.pkl')
+            with suppress_spello_warnings():
+                self.spello = SpellCorrectionModel(language='en')
+                self.spello.load('data/pythonModels/en.pkl')
         except Exception as e:
             print(f"Error loading Spello model: {e}")
             self.spello = None
@@ -82,34 +85,6 @@ class SpellCheckerEvaluator:
         except Exception as e:
             print(f"Error with {checker_name} on word '{word}': {e}")
             return word
-
-    def process_batch(self, batch_data, checker_name):
-        true_corrections = 0    # Successfully fixed misspelled words
-        false_corrections = 0   # Incorrectly fixed misspelled words
-        false_alarms = 0       # Incorrectly "fixed" correct words
-        true_negatives = 0     # Correctly left proper words unchanged
-
-        # Process error words
-        for _, row in batch_data.iterrows():
-            correct_word = row['correct']
-            error_word = row['error']
-
-            # Test correction of misspelled words
-            predicted = self.correct_word(error_word, checker_name)
-            if predicted == correct_word:
-                true_corrections += 1
-            else:
-                false_corrections += 1
-
-            # Randomly sample correct words to check if they're preserved
-            if random.random() < self.correct_word_sample_rate:
-                correct_word_prediction = self.correct_word(correct_word, checker_name)
-                if correct_word_prediction == correct_word:
-                    true_negatives += 1
-                else:
-                    false_alarms += 1
-
-        return true_corrections, false_corrections, false_alarms, true_negatives
 
     def evaluate(self):
         for checker_name in self.results.keys():
@@ -145,7 +120,7 @@ class SpellCheckerEvaluator:
 
             # Calculate metrics
             total_actual_errors = total_true_corrections + total_false_corrections  # Total errors in dataset
-            total_predicted_corrections = total_true_corrections + total_false_corrections + total_false_alarms  # Total corrections made
+            total_predicted_corrections = total_true_corrections + total_false_alarms  # Total corrections made
             total_valid_words_tested = total_true_negatives + total_false_alarms  # Total valid words tested
             total_cases = total_actual_errors + total_valid_words_tested
 
@@ -187,8 +162,17 @@ class SpellCheckerEvaluator:
             })
 
     def print_results(self):
-        print("\nFinal Results:")
-        print("-" * 50)
+        metrics_order = [
+            'True Corrections',
+            'False Corrections',
+            'False Alarms',
+            'True Negatives',
+            'Precision',
+            'Recall',
+            'Accuracy',
+            'F1 Score',
+            'Time (s)'
+        ]
 
         results_df = pd.DataFrame({
             checker: {
@@ -205,17 +189,25 @@ class SpellCheckerEvaluator:
             for checker, results in self.results.items()
         }).round(4)
 
+        # Reorder rows according to metrics_order
+        results_df = results_df.reindex(metrics_order)
+
+        print("\nFinal Results:")
+        print("-" * 50)
         print(results_df.to_string())
 
         # Print speed comparison
-        base_time = min(results['time'] for checker,results in self.results.items())
+        base_time = min(results['time'] for checker, results in self.results.items())
         print("\nRelative Speed (normalized to fastest):")
         for checker, results in self.results.items():
             print(f"{checker}: {results['time'] / base_time:.2f}x")
 
+        # Save with index (row names)
+        results_df.to_csv("results/results.csv")
+
 
 def main():
-    evaluator = SpellCheckerEvaluator('data/processed/spelling_errors.csv', batch_size=100)
+    evaluator = SpellCheckerEvaluator('data/processed/spelling_errors.csv')
     evaluator.evaluate()
     evaluator.print_results()
 
