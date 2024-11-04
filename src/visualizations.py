@@ -1,7 +1,10 @@
+import sys
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import numpy as np
+from IPython.core.display_functions import display
 
 
 def create_visualizations(results_df):
@@ -110,7 +113,7 @@ def create_visualizations(results_df):
 
     # Adjust layout and save
     plt.tight_layout()
-    plt.savefig('results/graphs/spellchecker_analysis.png', dpi=300, bbox_inches='tight', facecolor='#1e1e1e')
+    plt.savefig('results/graphs/spellchecker_analysis.png', dpi=300, bbox_inches='tight',  pad_inches=0.5, facecolor='#1e1e1e')
     plt.close()
 
     # Create additional visualization: Success Rate Plot with consistent order
@@ -149,6 +152,8 @@ def visualize_results(csv_path='results/results.csv'):
 
     # Create visualizations
     create_visualizations(results_df)
+
+    print("Graphs saved in results/graphs/")
 
 if __name__ == "__main__":
     visualize_results()

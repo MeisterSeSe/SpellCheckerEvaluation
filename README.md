@@ -5,15 +5,15 @@ This repository contains a comprehensive evaluation of some existing spellchecki
 ## Overview
 
 This project evaluates the following spellchecking libraries:
-- TextBlob
-- SymSpell
-- PySpellChecker
-- Spello
-- Autocorrect
+- [TextBlob](https://textblob.readthedocs.io/en/dev/)
+- [SymSpell](https://github.com/mammothb/symspellpy)
+- [PySpellChecker](https://pypi.org/project/pyspellchecker/)
+- [Spello](https://pypi.org/project/spello/)
+- [Autocorrect](https://github.com/filyp/autocorrect)
 
 ## Dataset
 
-The evaluation uses Peter Norvig's spelling correction dataset, preprocessed into a CSV format containing correct-error word pairs. This provides a standardized way to test spellchecker performance across common spelling mistakes.
+The evaluation uses [Peter Norvig's](https://www.kaggle.com/datasets/bittlingmayer/spelling) spelling correction dataset, preprocessed into a CSV format containing correct-error word pairs. This provides a standardized way to test spellchecker performance across common spelling mistakes.
 
 ## Key Metrics
 
@@ -75,7 +75,7 @@ python src/data_perparation.py #Preprocess data
 python src/spell_checker_setup.py  # Run evaluation only
 python src/visualizations.py  # Generate visualizations
 ```
-Note: To use spello, you need a pretrained model (or train own yourself xD) and place it in `data/pythonModels`.
+Note: To use spello, you need a pretrained model (or train one yourself xD) and place it in `data/pythonModels`.
 I used this [model](https://haptik-website-images.haptik.ai/spello_models/en.pkl.zip), unzip it and place it in `data/pythonModels`.
 ## Results Summary
 
@@ -83,8 +83,9 @@ I used this [model](https://haptik-website-images.haptik.ai/spello_models/en.pkl
 ![Evalution_results](/results/graphs/success_rate.png)
 Key findings from our evaluation:
 - SymSpell shows the best balance of speed and accuracy
-- PySpellChecker achieves highest precision but is slower
-- TextBlob provides additional NLP features but lower specific spell-checking accuracy
-- Spello offers good customization but requires training
+- PySpellChecker achieves equal results but is orders of magnitude slower
+- TextBlob provides additional NLP features but is significantly outperformed in both the classification metrics and the speed
+- Spello provides promising results but may require more efficient trainings
 
-For detailed analysis and visualizations, see the Jupyter notebook.
+We recommend that symspell should be selected as the spellchecker to be utilised, as it has been demonstrated to be both effective and highly efficient.
+For detailed analysis and visualizations, please direct your attention to the Jupyter notebook.

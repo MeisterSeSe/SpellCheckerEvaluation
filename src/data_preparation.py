@@ -74,7 +74,7 @@ def generate_synthetic_errors(words: List[str], n: int) -> List[Tuple[str, str]]
         else:
             error = word  # If we can't modify the word, keep it as is
 
-        errors.append((error, word))
+        errors.append((word, error ))
 
     return errors
 
@@ -89,12 +89,12 @@ def main(src_path=None):
     # Process all spelling error files in the raw directory
     spelling_errors = process_all_files(src_path)
 
-    # Generate synthetic errors
-    #words = [word for _, word in spelling_errors]
-    #synthetic_errors = generate_synthetic_errors(words, 1000)
+    # # Generate synthetic errors
+    # words = [word for word, _ in spelling_errors]
+    # synthetic_errors = generate_synthetic_errors(words, int(0.1*len(spelling_errors)))
 
     # Combine all errors
-    all_errors = spelling_errors
+    all_errors = spelling_errors #+ synthetic_errors
 
     # Save processed data
     df = pd.DataFrame(all_errors, columns=['correct', 'error'])
